@@ -24,6 +24,7 @@ class SSHExecutor:
     def execute(self):
         """method to execute command"""
         self.build_expression()
+        print(self.expression)
         expression = Popen(self.expression, shell=True, stdout=PIPE, stderr=PIPE, encoding='utf-8')
         return expression.communicate()
 
