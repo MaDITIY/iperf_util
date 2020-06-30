@@ -14,7 +14,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class Host():
+class Host:
     """Base class for hosts"""
 
     def __init__(self, host, password, password_file):
@@ -33,20 +33,25 @@ class Server(Host, metaclass=Singleton):
     """Server class"""
 
     def start(self):
-        SSHExecutor(
+        executor = SSHExecutor(
             host=self.host,
             password=self.password,
-            command='iperf3 -s',
             pass_file=self.password_file
-        ).build_expression()
+        )
+        result = executor.execute('iperf3 -s')
+        self.running = True
+        return result
 
     def stop(self):
-        SSHExecutor(
-            host=self.host,
-            password=self.password,
-            command='pkill iperf3',
-            pass_file=self.password_file
-        ).build_expression()
+        if self.running:
+            executor = SSHExecutor(
+                host=self.host,
+                password=self.password,
+                pass_file=self.password_file
+            )
+            result = executor.execute('pkill iperf3')
+            self.running = False
+            return result
 
 
 class Client(Host):
@@ -67,11 +72,11 @@ class Client(Host):
                 stderr=PIPE,
                 encoding='utf-8'
             )
+            return process.communicate()
         else:
-            process = SSHExecutor(
+            executor = SSHExecutor(
                 host=self.host,
                 password=self.password,
-                command=command,
                 pass_file=self.password_file
-            ).build_expression()
-        return process.communicate()
+            )
+            return executor.execute(command)

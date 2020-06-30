@@ -3,6 +3,9 @@ import argparse
 
 
 class ShellParser:
+    def __init__(self):
+        self.args = None
+
     def parse_arguments(self):
         """Parse args from console and returns it"""
         parser = argparse.ArgumentParser(description='Util to measure capacity of line between two hosts')

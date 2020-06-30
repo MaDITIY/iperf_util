@@ -17,9 +17,9 @@ def main():
         args.client_file,
         server.address
     )
-    server.start()
+    print(server.start())
     data = client.measure()
-    server.stop()
+    print(server.stop())
     print(data)
 
 
