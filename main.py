@@ -1,25 +1,25 @@
 """Main module of iperf util"""
-from host import Server, Client
+from host import IperfServer, IperfClient
 from shell_interface import ShellParser
 
 
 def main():
     """main function of project"""
     args = ShellParser().parse_arguments()
-    server = Server(
+    server = IperfServer(
         args.server_host,
         args.server_password,
         args.server_file,
     )
-    client = Client(
+    client = IperfClient(
         args.client_host,
         args.client_password,
         args.client_file,
         server.address
     )
-    print(server.start())
+    server.start()
     data = client.measure()
-    print(server.stop())
+    server.stop()
     print(data)
 
 

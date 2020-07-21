@@ -18,11 +18,11 @@ class SSHExecutor:
         self.pass_flag = None
         self.expression = None
 
-    def execute(self, command):
-        process = self._build_process(command)
+    def execute(self, command, check_output=False):
+        process = self._build_process(command, check_output)
         return process.communicate()
 
-    def _build_process(self, command):
+    def _build_process(self, command, check_output):
         """method to build expression"""
         if self.pass_file is not None:
             self.pass_flag = f'-f {self.pass_file}'
@@ -40,6 +40,7 @@ class SSHExecutor:
         ]
         expression = " ".join(args)
         print(expression)
-        process = Popen(expression, shell=True, stdout=PIPE, stderr=PIPE,
+        stdout, stderr = (PIPE, PIPE) if check_output else (None, None)
+        process = Popen(expression, shell=True, stdout=stdout, stderr=stderr,
                         encoding='utf-8', universal_newlines=True)
         return process
