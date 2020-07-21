@@ -1,5 +1,6 @@
 """Main module of iperf util"""
-from host import IperfServer, IperfClient
+from iperf_hosts.iperf_client import IperfClient
+from iperf_hosts.iperf_server import IperfServer
 from shell_interface import ShellParser
 
 
@@ -17,9 +18,9 @@ def main():
         args.client_file,
         server.address
     )
-    server.start()
+    print(server.start())
     data = client.measure()
-    server.stop()
+    print(server.stop())
     print(data)
 
 
