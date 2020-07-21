@@ -18,9 +18,13 @@ class SSHExecutor:
         self.pass_flag = None
         self.expression = None
 
-    def execute(self, command):
+    def execute(self, command, check_output=False):
         process = self._build_process(command)
-        return process.communicate()
+        if check_output:
+            result = process.communicate(), process.returncode
+        else:
+            result = process.poll()
+        return result
 
     def _build_process(self, command):
         """method to build expression"""

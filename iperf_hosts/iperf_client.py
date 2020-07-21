@@ -1,6 +1,6 @@
 from iperf_hosts.iperf_machine import IperfMachine
-from sshpass_command import SSHExecutor
-from subprocess import Popen, PIPE
+from executors.remote_executor import SSHExecutor
+from executors.local_executor import LocalExecutor
 
 
 class IperfClient(IperfMachine):
@@ -13,19 +13,11 @@ class IperfClient(IperfMachine):
     def measure(self):
         command = f'iperf3 -c {self.server_ip}'
         if self.is_local():
-            print(command)
-            process = Popen(
-                command,
-                shell=True,
-                stdout=PIPE,
-                stderr=PIPE,
-                encoding='utf-8'
-            )
-            return process.communicate()
+            executor = LocalExecutor()
         else:
             executor = SSHExecutor(
                 host=self.host,
                 password=self.password,
                 pass_file=self.password_file
             )
-            return executor.execute(command)
+        return executor.execute(command, check_output=True)

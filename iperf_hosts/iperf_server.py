@@ -1,6 +1,6 @@
 from iperf_hosts.iperf_machine import IperfMachine
-from sshpass_command import SSHExecutor
-from subprocess import Popen, PIPE
+from executors.remote_executor import SSHExecutor
+from executors.local_executor import LocalExecutor
 
 
 class Singleton(type):
@@ -18,42 +18,30 @@ class IperfServer(IperfMachine, metaclass=Singleton):
     """Server class"""
 
     def start(self):
+        command = 'iperf3 -s'
         if self.is_local():
-            print('iperf3 -s')
-            process = Popen(
-                'iperf3 -s',
-                shell=True,
-                stdout=PIPE,
-                stderr=PIPE,
-            )
-            result = process.poll()
+            executor = LocalExecutor()
         else:
             executor = SSHExecutor(
                 host=self.host,
                 password=self.password,
                 pass_file=self.password_file
             )
-            result = executor.execute('iperf3 -s')
+        result = executor.execute(command)
         self.running = True
         return result
 
     def stop(self):
         if self.running:
+            command = 'pkill iperf3'
             if self.is_local():
-                print('pkill iperf3')
-                process = Popen(
-                    'pkill iperf3',
-                    shell=True,
-                    stdout=PIPE,
-                    stderr=PIPE
-                )
-                result = process.returncode
+                executor = LocalExecutor()
             else:
                 executor = SSHExecutor(
                     host=self.host,
                     password=self.password,
                     pass_file=self.password_file
                 )
-                result = executor.execute('pkill iperf3')
+            result = executor.execute(command, check_output=True)
             self.running = False
             return result
