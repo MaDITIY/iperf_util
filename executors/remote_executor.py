@@ -45,5 +45,5 @@ class SSHExecutor:
         expression = " ".join(args)
         print(expression)
         process = Popen(expression, shell=True, stdout=PIPE, stderr=PIPE,
-                        encoding='utf-8', text=True)
+                        encoding='utf-8', universal_newlines=True)
         return process
