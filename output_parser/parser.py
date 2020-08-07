@@ -1,8 +1,22 @@
 import re
 
 
-class Parser:
+class Column:
+    def __init__(self, name, is_measurement_unit=True):
+        self.name = name
+        self.is_measurement_unit = is_measurement_unit
 
+
+KNOWN_COLUMS = {
+    'Interval': Column('Interval'),
+    'Transfer': Column('Transfer'),
+    'Bandwidth': Column('Bandwidth'),
+    'Retr': Column('Retr', False),
+    'Cwnd': Column('Cwnd'),
+}
+
+
+class Parser:
     def build_result(self, output, errors, return_code):
         result = {
             'error': self.parse_errors(errors),
@@ -11,21 +25,31 @@ class Parser:
         }
         return result
 
-    @staticmethod
-    def parse_output(iperf_output):
-        diff_lines = re.split(r'\[.{3}\]', iperf_output)
-        deleted_linebrakers = ''.join(diff_lines).split('\n')
-        lines = [line.strip() for line in deleted_linebrakers if line]
-        needed_lines = lines[2:13]
-        keys = needed_lines[0].split()
+    def parse_output(self, iperf_output):
+        result = []
         default_value = []
-        result = {key: list(default_value) for key in keys}
-        for index, key in enumerate(keys):
-            for line in needed_lines[1:]:
-                values = re.split(r' {2,}', line)
-                values = [' '.join(values[:2])] + values[2:]
-                result[key].append(values[index])
+        current_table = None
+        r1 = [r[5:].strip() for r in iperf_output.split('\n') if re.match(r'\[.{3}\]', r)]
+        for line in r1:
+            if re.match(r'([a-zA-Z]+)( *)', line):
+                self.save_result(result, current_table)
+                keys = line.split()
+                current_table = {key: list(default_value) for key in keys}
+                continue
+            items = line.split()
+            items.reverse()
+            for column_name in current_table.keys():
+                column = KNOWN_COLUMS.get(column_name, Column(column_name))
+                current_table[column_name].append(
+                    " ".join([items.pop(), items.pop()]) if column.is_measurement_unit else items.pop()
+                )
+        self.save_result(result, current_table)
         return result
+
+    @staticmethod
+    def save_result(result, current_table):
+        if current_table and any(current_table.values()):
+            result.append(current_table.copy())
 
     @staticmethod
     def parse_errors(errors):
