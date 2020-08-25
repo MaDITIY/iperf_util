@@ -3,8 +3,6 @@ from collections import namedtuple
 
 
 Column = namedtuple('Column', ['name', 'is_measurement_unit'], defaults=(True, ))
-
-
 EXPECTED_COLUMS = {
     'Interval': Column('Interval'),
     'Transfer': Column('Transfer'),
@@ -12,6 +10,8 @@ EXPECTED_COLUMS = {
     'Retr': Column('Retr', False),
     'Cwnd': Column('Cwnd'),
 }
+INFORMATIVE_LINE = r'\[.{3}\]'  # 3 is the number of chars in bracers
+HEADER_LINE = r'([a-zA-Z]+)( *)'
 
 
 class Parser:
@@ -27,9 +27,10 @@ class Parser:
         result = []
         default_value = []
         current_table = None
-        r1 = [r[5:].strip() for r in iperf_output.split('\n') if re.match(r'\[.{3}\]', r)]
-        for line in r1:
-            if re.match(r'([a-zA-Z]+)( *)', line):
+        # get informative lines by regex and strip first 5 chars (unused part line e.g. [ ID])
+        info_line = [r[5:].strip() for r in iperf_output.split('\n') if re.match(INFORMATIVE_LINE, r)]
+        for line in info_line:
+            if re.match(HEADER_LINE, line):
                 self.save_result(result, current_table)
                 keys = line.split()
                 current_table = {key: list(default_value) for key in keys}
