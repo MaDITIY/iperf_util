@@ -1,13 +1,11 @@
 import re
+from collections import namedtuple
 
 
-class Column:
-    def __init__(self, name, is_measurement_unit=True):
-        self.name = name
-        self.is_measurement_unit = is_measurement_unit
+Column = namedtuple('Column', ['name', 'is_measurement_unit'], defaults=(True, ))
 
 
-KNOWN_COLUMS = {
+EXPECTED_COLUMS = {
     'Interval': Column('Interval'),
     'Transfer': Column('Transfer'),
     'Bandwidth': Column('Bandwidth'),
@@ -39,7 +37,7 @@ class Parser:
             items = line.split()
             items.reverse()
             for column_name in current_table.keys():
-                column = KNOWN_COLUMS.get(column_name, Column(column_name))
+                column = EXPECTED_COLUMS.get(column_name, Column(column_name))
                 current_table[column_name].append(
                     " ".join([items.pop(), items.pop()]) if column.is_measurement_unit else items.pop()
                 )
