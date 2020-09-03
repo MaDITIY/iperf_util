@@ -29,7 +29,7 @@ def main():
     if measure_return_code != 0:
         errors.append(measure_output[0])
     stop_output, stop_return_code = server.stop()
-    if stop_return_code != 0:
+    if stop_return_code and stop_return_code != 0:
         errors.append(stop_output[0])
     result = output_parser.build_result(measure_output[0], errors, measure_return_code)
     pprint(result, width=100)

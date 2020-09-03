@@ -39,6 +39,7 @@ class IperfServer(IperfMachine, metaclass=Singleton):
             result = executor.execute(command, check_output=True)
             self._running = False
             return result
+        return None, None
 
     def is_running(self):
         return self._running
