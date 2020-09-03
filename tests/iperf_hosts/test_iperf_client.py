@@ -6,7 +6,7 @@ from executors.local_executor import LocalExecutor
 from executors.remote_executor import SSHExecutor
 
 
-class TestIperfServer(unittest.TestCase):
+class TestIperfClient(unittest.TestCase):
     def setUp(self):
         server_ip = '2.2.2.2'
         self.command = f'iperf3 -c {server_ip}'
