@@ -33,6 +33,7 @@ def main():
         errors.append(stop_output[0])
     result = output_parser.build_result(measure_output[0], errors, measure_return_code)
     pprint(result, width=100)
+    return result
 
 
 if __name__ == '__main__':
